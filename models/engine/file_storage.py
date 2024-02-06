@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Contains the FileStorage class
+this script defines the FileStorage class
 """
 
 import json
@@ -14,6 +14,7 @@ from models.user import User
 
 classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
+"""dictionary mapping class names to their corresponding classes"""
 
 
 class FileStorage:
@@ -25,7 +26,7 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """returns the dictionary __objects"""
+        """Retrieves all objects from the  dictionary"""
         if cls is not None:
             new_dict = {}
             for key, value in self.__objects.items():
@@ -33,6 +34,24 @@ class FileStorage:
                     new_dict[key] = value
             return new_dict
         return self.__objects
+
+    def get(self, cls, id):
+        """Retrieves a specific object by class and ID from the dictionary"""
+        if cls is not None:
+            res = list(
+                filter(
+                    lambda x: type(x) is cls and x.id == id,
+                    self.__objects.values()
+                )
+            )
+            if res:
+                return res[0]
+        return None
+
+    def count(self, cls=None):
+        """Counts the number of objects in the dictionary, filtered by class,
+        all (if cls==None)"""
+        return len(self.all(cls))
 
     def new(self, obj):
         """sets in __objects the obj with key <obj class name>.id"""
@@ -55,7 +74,7 @@ class FileStorage:
                 jo = json.load(f)
             for key in jo:
                 self.__objects[key] = classes[jo[key]["__class__"]](**jo[key])
-        except:
+        except Exception:
             pass
 
     def delete(self, obj=None):
